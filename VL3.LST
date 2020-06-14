@@ -1,0 +1,140 @@
+Turbo Assembler	 Version 2.02	     28/12/19 11:32:29	    Page 1
+vl3.ASM
+
+
+
+      1	    0000			 model small
+      2	    0000			 .stack	100h
+      3					 .386
+      4	    0000			 .data
+      5	    0000  56 6C	61 73 6F 76 20+		 fio db	'Vlasov	Georgii	Vladimirovich'
+      6		  47 65	6F 72 67 69 69+
+      7		  20 56	6C 61 64 69 6D+
+      8		  69 72	6F 76 69 63 68
+      9	    001C  ??				 videoMode db ?
+     10	    001D  0010				 height	dw 16
+     11	    001F  003C				 x dw 60
+     12	    0021  0064				 y dw 100
+     13	    0023			 .code
+     14	    0000			 start:
+     15	    0000  B8 0000s			 mov ax, @data
+     16	    0003  8E D8				 mov ds, ax
+     17
+     18	    0005  B4 0F				 mov ah, 0Fh
+     19	    0007  CD 10				 int 10h
+     20	    0009  A2 001Cr			 mov videoMode,	al
+     21	    000C  32 E4				 xor ah,ah
+     22	    000E  B0 13				 mov al, 13h
+     23	    0010  CD 10				 int 10h
+     24
+     25	    0012  B8 1130			 mov ax, 1130h
+     26	    0015  B7 06			     mov bh, 06h
+     27	    0017  CD 10			     int 10h
+     28
+     29	    0019  06				 push es
+     30	    001A  0F A1				 pop fs
+     31
+     32	    001C  BB 0000r			 mov bx,offset fio
+     33
+     34	    001F					 symbolLoop:
+     35	    001F  33 C0					 xor ax,ax
+     36	    0021  8A 07					 mov al,[bx]
+     37	    0023  F7 26	001Dr				 mul height
+     38	    0027  03 C5					 add ax,bp
+     39	    0029  8B F0					 mov si,ax
+     40
+     41	    002B  B9 0010				 mov cx,16
+     42	    002E						 checkLines:
+     43	    002E  51						 push cx
+     44	    002F  64: 8A 04					 mov al, fs:[si]
+     45	    0032  B9 0008					 mov cx, 8
+     46	    0035  FF 36	001Fr					 push x
+     47	    0039							 checkLine:
+     48	    0039  D0 C0							 rol al,1
+     49	    003B  72 05	90 90						 jc FillPixel
+     50	    003F  EB 17	90						 jmp noFill
+     51
+     52	    0042								 FillPixel:
+     53	    0042  50								 push ax
+     54	    0043  51								 push cx
+     55	    0044  52								 push dx
+     56	    0045  32 FF								 xor bh,bh
+     57	    0047  B4 0C								 mov ah,0Ch
+Turbo Assembler	 Version 2.02	     28/12/19 11:32:29	    Page 2
+vl3.ASM
+
+
+
+     58	    0049  8B 16	0021r							 mov dx,y
+     59	    004D  8B 0E	001Fr							 mov cx,x
+     60	    0051  B0 02								 mov al,010b
+     61	    0053  CD 10								 int 10h
+     62	    0055  5A								 pop dx
+     63	    0056  59								 pop cx
+     64	    0057  58								 pop ax
+     65
+     66	    0058							 noFill:
+     67	    0058  83 06	001Fr 01					 add x,1
+     68
+     69	    005D  E2 DA							 loop checkLine
+     70
+     71	    005F  8F 06	001Fr					 pop x
+     72	    0063  83 06	0021r 01				 add y,1
+     73	    0068  46						 inc si
+     74	    0069  59						 pop cx
+     75	    006A  E2 C2						 loop checkLines
+     76
+     77	    006C  83 06	001Fr 08			 add x,8
+     78	    0071  43					 inc bx
+     79	    0072  C7 06	0021r 0064			 mov y,100
+     80	    0078  80 BF	FFFFr 68		 cmp fio[bx - 1], 'h'
+     81	    007D  75 A0					 jne symbolLoop
+     82
+     83	    007F  B4 10				 mov ah,10h
+     84	    0081  CD 16				 int 16h
+     85	    0083  32 E4			     xor ah,ah
+     86	    0085  A0 001Cr			 mov al,videoMode
+     87	    0088  CD 10				 int 10h
+     88	    008A  B8 4C00			 mov ax,4c00h
+     89	    008D  CD 21				 int 21h
+     90					 end start
+Turbo Assembler	 Version 2.02	     28/12/19 11:32:29	    Page 3
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "28/12/19"
+??FILENAME			  Text	 "vl3	  "
+??TIME				  Text	 "11:32:29"
+??VERSION			  Number 0202
+@CODE				  Text	 _TEXT
+@CODESIZE			  Text	 0
+@CPU				  Text	 0D0FH
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 VL3
+@MODEL				  Text	 2
+@WORDSIZE			  Text	 2
+CHECKLINE			  Near	 _TEXT:0039
+CHECKLINES			  Near	 _TEXT:002E
+FILLPIXEL			  Near	 _TEXT:0042
+FIO				  Byte	 DGROUP:0000
+HEIGHT				  Word	 DGROUP:001D
+NOFILL				  Near	 _TEXT:0058
+START				  Near	 _TEXT:0000
+SYMBOLLOOP			  Near	 _TEXT:001F
+VIDEOMODE			  Byte	 DGROUP:001C
+X				  Word	 DGROUP:001F
+Y				  Word	 DGROUP:0021
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  STACK				  16  0100 Para	  Stack	  STACK
+  _DATA				  16  0023 Word	  Public  DATA
+_TEXT				  16  008F Word	  Public  CODE
+
